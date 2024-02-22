@@ -121,7 +121,10 @@ where
                 // When this kind of error happens on `COMMIT`, it is expected
                 // that a `ROLLBACK` would succeed, leaving the transaction in a non-broken state.
                 // If there are other such errors, it is fine to add them here.
-                e @ Err(Error::DatabaseError(DatabaseErrorKind::SerializationFailure, _)) => {
+                e @ Err(Error::DatabaseError(
+                    DatabaseErrorKind::SerializationFailure
+                    | DatabaseErrorKind::UniqueViolation
+                , _)) => {
                     self.change_transaction_depth(-1, conn.batch_execute("ROLLBACK"))?;
                     e
                 }
